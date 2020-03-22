@@ -65,7 +65,7 @@ export default class App extends React.Component {
     const {data, keys} = this.state;
     return (
       <div className="App">
-        <h1 className="App-Header"> COVID-19 Curve by Country / State </h1>
+        <h1 className="App-Header">COVID-19 Deaths by Country / State </h1>
         <div className={'App-Chart-container'}>
           <Chart
             data={data}

@@ -25,6 +25,22 @@ export default class MyLineChart extends React.Component {
     keys: PropTypes.array.isRequired,
   };
 
+  getMaxValue(data) {
+    let max = 0;
+    data.forEach(datum => {
+      Object.entries(datum).forEach(([key, _val]) => {
+        if (key === 'timestamp') {
+          return;
+        }
+        const val = Number(_val);
+        if (val > max) {
+          max = val;
+        }
+      });
+    });
+    return max;
+  }
+
   render() {
     const {data, keys} = this.props;
     return (
@@ -39,7 +55,7 @@ export default class MyLineChart extends React.Component {
           bottom: 5 
         }}>
         <XAxis dataKey="timestamp" />
-        <YAxis domain={[0, 10000]}/>
+        <YAxis domain={[0, this.getMaxValue(data)]}/>
         <Legend />
         <Tooltip />
         <CartesianGrid stroke="#f5f5f5" />

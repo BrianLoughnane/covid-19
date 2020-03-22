@@ -11,19 +11,36 @@ import {
 } from 'recharts';
 import {cycle} from '../utils';
 
-const colors = cycle([
-  '#ff8150',
-  '#ffc139',
-  '#5dffcf',
-  '#3ef1fc',
-  '#4ec9ff',
-]);
-
 export default class MyLineChart extends React.Component {
   static propTypes = {
     data: PropTypes.array.isRequired,
     keys: PropTypes.array.isRequired,
+    colors: PropTypes.array,
   };
+
+  static defaultProps = {
+    colors: [
+      '#ff8150',
+      '#ffc139',
+      '#5dffcf',
+      '#3ef1fc',
+      '#4ec9ff',
+    ],
+  };
+
+  constructor() {
+    super();
+    this.state = {};
+  }
+
+  getColors() {
+    const colors = cycle(Array.from(this.props.colors))
+    const colorsByKey = {};
+    this.props.keys.forEach(
+      key => colorsByKey[key] = colors.next().value
+    );
+    return colorsByKey;
+  }
 
   getMaxValue(data) {
     let max = 0;
@@ -41,8 +58,36 @@ export default class MyLineChart extends React.Component {
     return max;
   }
 
+  onDotEnter(point) {
+    this.setState({
+      activePoint: point,
+    });
+  }
+
+  onDotLeave() {
+    this.setState({
+      activePoint: null,
+    });
+  }
+
+  getTooltip() {
+    const {activePoint} = this.state;
+    if (activePoint) {
+      return (
+        <Tooltip content={() => (
+            <span>
+              {activePoint.dataKey}: {activePoint.value}
+            </span>
+          )
+        } />
+      );
+    }
+    return (<Tooltip />);
+  }
+
   render() {
     const {data, keys} = this.props;
+    const colorsByKey = this.getColors();
     return (
       <LineChart
         width={800}
@@ -54,16 +99,20 @@ export default class MyLineChart extends React.Component {
           left: 10,
           bottom: 5 
         }}>
+        <CartesianGrid stroke="#f5f5f5" />
         <XAxis dataKey="timestamp" />
         <YAxis domain={[0, this.getMaxValue(data)]}/>
         <Legend />
-        <Tooltip />
-        <CartesianGrid stroke="#f5f5f5" />
+        {this.getTooltip()}
         {keys.map((key, idx) => (
           <Line
+            activeDot={{
+              onMouseOver:this.onDotEnter.bind(this),
+              onMouseOut:this.onDotLeave.bind(this),
+            }}
             type="monotone"
             dataKey={key}
-            stroke={colors.next().value}
+            stroke={colorsByKey[key]}
             key={key} />
          ))}
       </LineChart>

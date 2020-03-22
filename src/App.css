@@ -1,3 +1,8 @@
-.App .App-Chart-container .recharts-wrapper {
+.App .recharts-wrapper {
   margin: auto;
+}
+
+.App .App-Header {
+  display: block;
+  text-align: center;
 }

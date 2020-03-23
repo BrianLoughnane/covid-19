@@ -6,7 +6,7 @@ import './index.css';
 export default class MyForm extends React.Component {
   static propTypes = {
     keys: PropTypes.array.isRequired,
-    initialSelectedValues: PropTypes.array.isRequired,
+    locationSelectedValues: PropTypes.array.isRequired,
     periodSelectedValue: PropTypes.number.isRequired,
     onSubmit: PropTypes.func.isRequired,
   }
@@ -15,7 +15,7 @@ export default class MyForm extends React.Component {
     super(props);
     this.onSubmit = this.onSubmit.bind(this);
     this.state = {
-      locationSelectedValues: props.initialSelectedValues,
+      locationSelectedValues: props.locationSelectedValues,
       periodSelectedValue: props.periodSelectedValue,
     };
   }
@@ -36,15 +36,19 @@ export default class MyForm extends React.Component {
   }
 
   render() {
-    const periodOptions = [3,7,10,14,21,30,0].map(this.makePeriodOption);
+    const periodOptions = [3,7,10,14,21,30,60,0].map(this.makePeriodOption);
     const locationOptions = this.makeLocationOptions(this.props.keys);
     console.log('form', this.state)
     return (
       <div className={'center'}>
-        <h3>{'Period'}</h3>
         <div className={'period-selector'}>
-          <select value={this.state.periodSelectedValue} onChange={(evnt) => this.onPeriodChange(evnt)}>
-            {periodOptions.map(opt => (<option value={opt.value}>{opt.key}</option>))}
+          <h3>{'Period'}</h3>
+          <select
+            onChange={(evnt) => this.onPeriodChange(evnt)}
+            value={this.state.periodSelectedValue}>
+            {periodOptions.map(opt => (
+              <option value={opt.value}>{opt.key}</option>
+            ))}
           </select>
         </div>
 
@@ -87,14 +91,21 @@ class CheckSheet extends React.Component {
   constructor(props) {
     super(props);
 
-    const state = {
+    this.state = {
       visible: false,
     };
-    props.selectedValues.forEach(option => state[option] = true);
-    this.state = state;
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  componentWillReceiveProps(props) {
+    const state = {
+      visible: props.visible,
+    };
+    props.options.forEach(option => state[option.key] = false);
+    props.selectedValues.forEach(value => state[value] = true);
+    this.setState(state);
   }
 
   onSubmit(e) {

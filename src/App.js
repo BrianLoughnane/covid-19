@@ -99,7 +99,7 @@ export default class App extends React.Component {
         <div className={'App-Form'}>
           <Form
             periodSelectedValue={period}
-            initialSelectedValues={locations}
+            locationSelectedValues={locations}
             keys={keys}
             onSubmit={this.onSubmit} />
         </div>

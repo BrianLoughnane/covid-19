@@ -79,14 +79,17 @@ export default class App extends React.Component {
           COVID-19 Deaths by Country / State
         </h1>
         <div className={'App-Form'}>
-          <Form />
+          <Form
+            initialSelectedValues={[
+              'US - New York',
+            ]}
+            keys={keys} />
         </div>
         <div className={'App-Chart-container'}>
           <div>
             <Chart
               data={data}
-              keys={keys}
-            />
+              keys={keys} />
           </div>
         </div>
       </div>

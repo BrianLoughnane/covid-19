@@ -15,7 +15,7 @@ export default class MyForm extends React.Component {
     super(props);
     this.onSubmit = this.onSubmit.bind(this);
     this.state = {
-      locationSelectedValues: this.makeLocationOptions(props.initialSelectedValues),
+      locationSelectedValues: props.initialSelectedValues,
       periodSelectedValue: props.periodSelectedValue,
     };
   }
@@ -43,9 +43,7 @@ export default class MyForm extends React.Component {
       <div className={'center'}>
         <h3>{'Period'}</h3>
         <div className={'period-selector'}>
-          <select value={this.state.periodSelectedValue} onChange={(evnt) => {
-            this.setState({periodSelectedValue: Number(evnt.target.value)});
-          }}>
+          <select value={this.state.periodSelectedValue} onChange={(evnt) => this.onPeriodChange(evnt)}>
             {periodOptions.map(opt => (<option value={opt.value}>{opt.key}</option>))}
           </select>
         </div>
@@ -54,23 +52,26 @@ export default class MyForm extends React.Component {
           <CheckSheet
             heading={'Country / State'}
             options={locationOptions}
-            onSubmit={(locationSelectedValues) => this.setState({locationSelectedValues})}
+            onSubmit={(locationSelectedValues) => this.onLocationChange(locationSelectedValues)}
             selectedValues={this.state.locationSelectedValues}
           />
         </div>
-
-        <button type={'submit'} onClick={this.onSubmit}>
-          Update
-        </button>
       </div>
     );
   }
 
-  onSubmit(e) {
-    e.preventDefault();
+  onLocationChange(locationSelectedValues) {
+    this.setState({locationSelectedValues}, this.onSubmit)
+  }
+
+  onPeriodChange(evnt) {
+    this.setState({periodSelectedValue: Number(evnt.target.value)}, this.onSubmit);
+  }
+
+  onSubmit() {
     this.props.onSubmit({
       period: this.state.periodSelectedValue,
-      locations: this.state.locationSelectedValues.map(option => option.key),
+      locations: this.state.locationSelectedValues,
     });
   }
 }
@@ -89,7 +90,7 @@ class CheckSheet extends React.Component {
     const state = {
       visible: false,
     };
-    props.selectedValues.forEach(option => state[option.key] = true);
+    props.selectedValues.forEach(option => state[option] = true);
     this.state = state;
 
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -103,6 +104,7 @@ class CheckSheet extends React.Component {
     if (!visible) {
       const locations = Object.entries(this.state)
         .filter(([name, val]) => val && name !== 'visible')
+        .map(([name, val]) => name)
       this.props.onSubmit(locations);
     }
 
@@ -112,7 +114,7 @@ class CheckSheet extends React.Component {
   }
 
   getToggleButton() {
-    const title = this.state.visible ? 'Submit' : 'Select Locations';
+    const title = this.state.visible ? 'Update' : 'Select Locations';
     return (
       <button onClick={this.onSubmit}>{title}</button>
     );

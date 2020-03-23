@@ -1,4 +1,5 @@
 import React from 'react';
+import Papa from 'papaparse';
 import Chart from './line-chart';
 import Form from './form';
 import './App.css';
@@ -44,11 +45,8 @@ export default class App extends React.Component {
   }
 
   parseRawData(rawData, configuration, top10) {
-    const rows = rawData
-      .split('\n')
-      .map(str => str.split(','))
-      .filter(row => row[row.length-1] || row[row.length-2])
-      .slice(0, 50); // temporary perf
+    const rows = Papa.parse(rawData).data
+      .filter(row => row[row.length-1] || row[row.length-2]);
 
     const header = rows[0];
     const tsOffset = 4;

@@ -26,9 +26,9 @@ export default class App extends React.Component {
       data: [],
       keys: [],
       locations: [
-        'US - New York',
+        'Canada - British Columbia'
       ],
-      period: null,
+      period: 0,
     }
     this.onSubmit = this.onSubmit.bind(this);
   }
@@ -47,31 +47,33 @@ export default class App extends React.Component {
     const rows = rawData
       .split('\n')
       .map(str => str.split(','))
-      .filter(row => row[row.length-1] || row[row.length-2]);
+      .filter(row => row[row.length-1] || row[row.length-2])
+      .slice(0, 50); // temporary perf
 
     const header = rows[0];
     const tsOffset = 4;
     let offset = tsOffset;
-    if (configuration.period !== null) {
+    if (configuration.period !== 0) {
       offset = header.length - configuration.period;
     }
     const timestamps = header.slice(offset);
 
+    let keys = new Set();
     const locations = new Set(configuration.locations);
-    const keys = [];
     const data = timestamps.map((timestamp, idx) => {
       const datum = {
         timestamp,
       };
       rows.forEach(row => {
         const name = makeName(row);
-        keys.push(name);
+        keys.add(name);
         if (locations.has(name)) {
           datum[name] = row[offset + idx];
         }
       });
       return datum;
     });
+    keys = Array.from(keys);
     this.setState({
       ...configuration,
       data,
@@ -90,12 +92,13 @@ export default class App extends React.Component {
       locations,
       period,
     } = this.state;
+    console.log('render', this.state);
     return (
       <div className="App">
         <h1 className="App-Header">COVID-19 Deaths</h1>
         <div className={'App-Form'}>
           <Form
-            initialPeriodValue={period}
+            periodSelectedValue={period}
             initialSelectedValues={locations}
             keys={keys}
             onSubmit={this.onSubmit} />

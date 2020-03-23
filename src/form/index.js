@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Multiselect } from 'multiselect-react-dropdown';
 
 import './index.css';
 
@@ -8,7 +7,7 @@ export default class MyForm extends React.Component {
   static propTypes = {
     keys: PropTypes.array.isRequired,
     initialSelectedValues: PropTypes.array.isRequired,
-    initialPeriodValue: PropTypes.number.isRequired,
+    periodSelectedValue: PropTypes.number.isRequired,
     onSubmit: PropTypes.func.isRequired,
   }
 
@@ -17,7 +16,7 @@ export default class MyForm extends React.Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.state = {
       locationSelectedValues: this.makeLocationOptions(props.initialSelectedValues),
-      periodSelectedValue: this.makePeriodOption(props.initialPeriodValue),
+      periodSelectedValue: props.periodSelectedValue,
     };
   }
 
@@ -27,7 +26,7 @@ export default class MyForm extends React.Component {
 
   makePeriodOption(value) {
     let key = 'All time';
-    if (value !== null) {
+    if (value !== 0) {
       key = `Last ${value} days`;
     }
     return {
@@ -37,39 +36,31 @@ export default class MyForm extends React.Component {
   }
 
   render() {
-    const periodOptions = [3,7,10,14,21,30].map(this.makePeriodOption);
+    const periodOptions = [3,7,10,14,21,30,0].map(this.makePeriodOption);
     const locationOptions = this.makeLocationOptions(this.props.keys);
+    console.log('form', this.state)
     return (
       <div className={'center'}>
         <h3>{'Period'}</h3>
-        <div className={`period-selector ${this.state.periodSelectedValue ? 'hide-placeholder' : ''}`}>
-          <Multiselect
-            closeIcon={'cancel'}
-            displayValue={'key'}
-            options={periodOptions}
-            onSelect={(periodSelectedValue) => this.setState({periodSelectedValue})}
-            onRemove={(periodSelectedValue) => this.setState({periodSelectedValue})}
-            placeholder={'Period'}
-            selectedValues={[this.state.periodSelectedValue]}
-            singleSelect={true}
-          />
+        <div className={'period-selector'}>
+          <select value={this.state.periodSelectedValue} onChange={(evnt) => {
+            this.setState({periodSelectedValue: Number(evnt.target.value)});
+          }}>
+            {periodOptions.map(opt => (<option value={opt.value}>{opt.key}</option>))}
+          </select>
         </div>
 
-        <h3>{'Country / State'}</h3>
         <div className={'location-selector'}>
-          <Multiselect
-            closeIcon={'cancel'}
-            displayValue={'key'}
+          <CheckSheet
+            heading={'Country / State'}
             options={locationOptions}
-            onSelect={(locationSelectedValues) => this.setState({locationSelectedValues})}
-            onRemove={(locationSelectedValues) => this.setState({locationSelectedValues})}
-            placeholder={'Country / State'}
+            onSubmit={(locationSelectedValues) => this.setState({locationSelectedValues})}
             selectedValues={this.state.locationSelectedValues}
           />
         </div>
 
         <button type={'submit'} onClick={this.onSubmit}>
-          Submit
+          Update
         </button>
       </div>
     );
@@ -78,9 +69,90 @@ export default class MyForm extends React.Component {
   onSubmit(e) {
     e.preventDefault();
     this.props.onSubmit({
-      period: this.state.periodSelectedValue[0].value,
+      period: this.state.periodSelectedValue,
       locations: this.state.locationSelectedValues.map(option => option.key),
     });
   }
 }
 
+class CheckSheet extends React.Component {
+  static propTypes = {
+    heading: PropTypes.string.isRequired,
+    options: PropTypes.array.isRequired,
+    onSubmit: PropTypes.func.isRequired,
+    selectedValues: PropTypes.array.isRequired,
+  }
+
+  constructor(props) {
+    super(props);
+
+    const state = {
+      visible: false,
+    };
+    props.selectedValues.forEach(option => state[option.key] = true);
+    this.state = state;
+
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+
+    const visible = !this.state.visible;
+    if (!visible) {
+      const locations = Object.entries(this.state)
+        .filter(([name, val]) => val && name !== 'visible')
+      this.props.onSubmit(locations);
+    }
+
+    this.setState({
+      visible,
+    });
+  }
+
+  getToggleButton() {
+    const title = this.state.visible ? 'Submit' : 'Select Locations';
+    return (
+      <button onClick={this.onSubmit}>{title}</button>
+    );
+  }
+
+  handleInputChange(event) {
+    const target = event.target;
+    const name = target.name;
+    const value = target.checked;
+
+    this.setState({
+      [name]: value
+    });
+  }
+
+  render() {
+    const {
+      heading,
+      options,
+    } = this.props;
+    const containerClassName = this.state.visible ? '' : 'CheckSheet--hidden';
+    return (
+      <div>
+        <h3>
+          {heading}
+          {this.getToggleButton()}
+        </h3>
+        <div className={containerClassName}>
+          {options.map(option => (
+            <label>
+              <input
+                checked={this.state[option.key]}
+                name={option.key}
+                onChange={this.handleInputChange}
+                type={'checkbox'} />
+              {option.key}
+            </label>
+          ))}
+        </div>
+      </div>
+    );
+  }
+}

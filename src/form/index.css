@@ -9,3 +9,10 @@
 .period-selector.hide-placeholder .searchBox {
   display: none;
 }
+
+/* checksheet */
+
+.CheckSheet--hidden {
+  height: 0;
+  overflow: hidden;
+}

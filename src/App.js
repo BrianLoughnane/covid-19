@@ -25,71 +25,78 @@ export default class App extends React.Component {
     this.state = {
       data: [],
       keys: [],
+      locations: [
+        'US - New York',
+      ],
+      period: 7,
     }
+    this.onSubmit = this.onSubmit.bind(this);
   }
 
   componentWillMount() {
-    this.getData();
+    this.getData(this.state);
   }
 
-  getData() {
+  getData(configuration, top10) {
     window.fetch(dataUrl)
       .then(response => response.text())
-      .then(body => this.parseRawData(body))
+      .then(body => this.parseRawData(body, configuration, top10))
   }
 
-  parseRawData(rawData) {
+  parseRawData(rawData, configuration, top10) {
     const rows = rawData.split('\n').map(str => str.split(','));
     const header = rows[0];
     const tsOffset = 4;
     const timestamps = header.slice(tsOffset);
 
-    const len = rows[0].length;
-    const sorted = rows
-      .filter(row => row[len-1])
-      .sort((a,b) => {
-        const first = Number(a[len-1]);
-        const second = Number(b[len-1]);
-        return first - second;
-      });
-    const top10 = sorted.slice(-10);
-
-    const keys = top10.map(row => makeName(row));
-
-    const dataRows = timestamps.map((timestamp, idx) => {
-      const ret = {
+    const locations = new Set(configuration.locations);
+    const keys = [];
+    const data = timestamps.map((timestamp, idx) => {
+      const datum = {
         timestamp,
       };
-      top10.forEach(row => {
-        ret[makeName(row)] = row[idx + tsOffset];
+      rows.forEach(row => {
+        const name = makeName(row);
+        keys.push(name);
+        if (locations.has(name)) {
+          datum[name] = row[idx + tsOffset];
+        }
       });
-      return ret;
+      return datum;
     })
-    const data = dataRows;
     this.setState({
+      ...configuration,
       data,
       keys,
     });
   }
 
+  onSubmit(configuration) {
+    this.getData(configuration);
+  }
+
   render() {
-    const {data, keys} = this.state;
+    const {
+      data,
+      keys,
+      locations,
+      period,
+    } = this.state;
     return (
       <div className="App">
         <h1 className="App-Header">COVID-19 Deaths</h1>
         <div className={'App-Form'}>
           <Form
-            initialPeriodValue={7}
-            initialSelectedValues={[
-              'US - New York',
-            ]}
-            keys={keys} />
+            initialPeriodValue={period}
+            initialSelectedValues={locations}
+            keys={keys}
+            onSubmit={this.onSubmit} />
         </div>
         <div className={'App-Chart-container'}>
           <div>
             <Chart
               data={data}
-              keys={keys} />
+              keys={locations} />
           </div>
         </div>
       </div>

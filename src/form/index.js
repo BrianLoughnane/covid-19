@@ -9,10 +9,12 @@ export default class MyForm extends React.Component {
     keys: PropTypes.array.isRequired,
     initialSelectedValues: PropTypes.array.isRequired,
     initialPeriodValue: PropTypes.number.isRequired,
+    onSubmit: PropTypes.func.isRequired,
   }
 
   constructor(props) {
     super(props);
+    this.onSubmit = this.onSubmit.bind(this);
     this.state = {
       locationSelectedValues: this.makeLocationOptions(props.initialSelectedValues),
       periodSelectedValue: this.makePeriodOption(props.initialPeriodValue),
@@ -61,8 +63,20 @@ export default class MyForm extends React.Component {
             selectedValues={this.state.locationSelectedValues}
           />
         </div>
+
+        <button type={'submit'} onClick={this.onSubmit}>
+          Submit
+        </button>
       </div>
     );
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+    this.props.onSubmit({
+      period: this.state.periodSelectedValue.value,
+      locations: this.state.locationSelectedValues.map(option => option.key),
+    });
   }
 }
 

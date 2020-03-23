@@ -25,10 +25,14 @@ export default class MyForm extends React.Component {
     return keys.map(key => ({key}));
   }
 
-  makePeriodOption(num) {
+  makePeriodOption(value) {
+    let key = 'All time';
+    if (value !== null) {
+      key = `Last ${value} days`;
+    }
     return {
-      key: `Last ${num} days`,
-      value: num,
+      key,
+      value,
     };
   }
 
@@ -74,7 +78,7 @@ export default class MyForm extends React.Component {
   onSubmit(e) {
     e.preventDefault();
     this.props.onSubmit({
-      period: this.state.periodSelectedValue.value,
+      period: this.state.periodSelectedValue[0].value,
       locations: this.state.locationSelectedValues.map(option => option.key),
     });
   }

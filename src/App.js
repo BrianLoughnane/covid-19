@@ -28,7 +28,7 @@ export default class App extends React.Component {
       locations: [
         'US - New York',
       ],
-      period: 7,
+      period: null,
     }
     this.onSubmit = this.onSubmit.bind(this);
   }
@@ -44,10 +44,18 @@ export default class App extends React.Component {
   }
 
   parseRawData(rawData, configuration, top10) {
-    const rows = rawData.split('\n').map(str => str.split(','));
+    const rows = rawData
+      .split('\n')
+      .map(str => str.split(','))
+      .filter(row => row[row.length-1] || row[row.length-2]);
+
     const header = rows[0];
     const tsOffset = 4;
-    const timestamps = header.slice(tsOffset);
+    let offset = tsOffset;
+    if (configuration.period !== null) {
+      offset = header.length - configuration.period;
+    }
+    const timestamps = header.slice(offset);
 
     const locations = new Set(configuration.locations);
     const keys = [];
@@ -59,11 +67,11 @@ export default class App extends React.Component {
         const name = makeName(row);
         keys.push(name);
         if (locations.has(name)) {
-          datum[name] = row[idx + tsOffset];
+          datum[name] = row[offset + idx];
         }
       });
       return datum;
-    })
+    });
     this.setState({
       ...configuration,
       data,

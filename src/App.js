@@ -37,12 +37,23 @@ export default class App extends React.Component {
   }
 
   parseRawData(rawData) {
-    const rows = rawData.split('\n');
+    const rows = rawData.split('\n').map(str => str.split(','));
     const header = rows[0];
     const tsOffset = 4;
-    const timestamps = header.split(',').slice(tsOffset);
+    const timestamps = header.slice(tsOffset);
 
-    const top10 = rows.slice(1, 50).map(str => str.split(','));
+    const len = rows[0].length;
+    const sorted = rows
+      .filter(row => row[len-1])
+      .sort((a,b) => {
+        const first = Number(a[len-1]);
+        const second = Number(b[len-1]);
+        console.log(a[len-1], b[len-1]);
+        console.log(first, second);
+        return first - second;
+      });
+    const top10 = sorted.slice(-10);
+
     const keys = top10.map(row => makeName(row));
 
     const dataRows = timestamps.map((timestamp, idx) => {

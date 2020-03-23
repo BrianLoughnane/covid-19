@@ -1,5 +1,6 @@
 import React from 'react';
 import Chart from './line-chart';
+import Form from './form';
 import './App.css';
 
 const dataUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv"
@@ -48,8 +49,6 @@ export default class App extends React.Component {
       .sort((a,b) => {
         const first = Number(a[len-1]);
         const second = Number(b[len-1]);
-        console.log(a[len-1], b[len-1]);
-        console.log(first, second);
         return first - second;
       });
     const top10 = sorted.slice(-10);
@@ -76,12 +75,19 @@ export default class App extends React.Component {
     const {data, keys} = this.state;
     return (
       <div className="App">
-        <h1 className="App-Header">COVID-19 Deaths by Country / State </h1>
+        <h1 className="App-Header">
+          COVID-19 Deaths by Country / State
+        </h1>
+        <div className={'App-Form'}>
+          <Form />
+        </div>
         <div className={'App-Chart-container'}>
-          <Chart
-            data={data}
-            keys={keys}
-          />
+          <div>
+            <Chart
+              data={data}
+              keys={keys}
+            />
+          </div>
         </div>
       </div>
     );

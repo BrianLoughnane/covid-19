@@ -6,3 +6,6 @@
   text-align: center;
 }
 
+.period-selector.hide-placeholder .searchBox {
+  display: none;
+}

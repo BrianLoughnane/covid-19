@@ -76,11 +76,10 @@ export default class App extends React.Component {
     const {data, keys} = this.state;
     return (
       <div className="App">
-        <h1 className="App-Header">
-          COVID-19 Deaths by Country / State
-        </h1>
+        <h1 className="App-Header">COVID-19 Deaths</h1>
         <div className={'App-Form'}>
           <Form
+            initialPeriodValue={7}
             initialSelectedValues={[
               'US - New York',
             ]}

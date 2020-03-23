@@ -38,7 +38,6 @@ export default class MyForm extends React.Component {
   render() {
     const periodOptions = [3,7,10,14,21,30,60,0].map(this.makePeriodOption);
     const locationOptions = this.makeLocationOptions(this.props.keys);
-    console.log('form', this.state)
     return (
       <div className={'center'}>
         <div className={'period-selector'}>
@@ -47,7 +46,7 @@ export default class MyForm extends React.Component {
             onChange={(evnt) => this.onPeriodChange(evnt)}
             value={this.state.periodSelectedValue}>
             {periodOptions.map(opt => (
-              <option value={opt.value}>{opt.key}</option>
+              <option key={opt.key} value={opt.value}>{opt.key}</option>
             ))}
           </select>
         </div>
@@ -124,13 +123,6 @@ class CheckSheet extends React.Component {
     });
   }
 
-  getToggleButton() {
-    const title = this.state.visible ? 'Update' : 'Select Locations';
-    return (
-      <button onClick={this.onSubmit}>{title}</button>
-    );
-  }
-
   handleInputChange(event) {
     const target = event.target;
     const name = target.name;
@@ -151,11 +143,13 @@ class CheckSheet extends React.Component {
       <div>
         <h3>
           {heading}
-          {this.getToggleButton()}
+          <button onClick={this.onSubmit}>
+            {this.state.visible ? 'Update' : 'Select Locations'}
+          </button>
         </h3>
         <div className={containerClassName}>
           {options.map(option => (
-            <label>
+            <label key={option.key}>
               <input
                 checked={this.state[option.key]}
                 name={option.key}
@@ -169,3 +163,4 @@ class CheckSheet extends React.Component {
     );
   }
 }
+

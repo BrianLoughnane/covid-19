@@ -92,7 +92,6 @@ export default class App extends React.Component {
       locations,
       period,
     } = this.state;
-    console.log('render', this.state);
     return (
       <div className="App">
         <h1 className="App-Header">COVID-19 Deaths</h1>

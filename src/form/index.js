@@ -7,6 +7,7 @@ import {
   Formik,
 } from 'formik';
 import { Multiselect } from 'multiselect-react-dropdown';
+
 import './index.css';
 
 export default class MyForm extends React.Component {
@@ -30,15 +31,19 @@ export default class MyForm extends React.Component {
     console.log(this.state);
     const options = this.makeKeys(this.props.keys);
     return (
-      <div>
-        <Multiselect
-          displayValue={'key'}
-          options={options}
-          onSelect={(selectedValues) => this.setState({selectedValues})}
-          onRemove={(selectedValues) => this.setState({selectedValues})}
-          placeholder={'Country / State'}
-          selectedValues={this.state.selectedValues}
-        />
+      <div className={'center'}>
+        <h3>{'Country / State'}</h3>
+        <div>
+          <Multiselect
+            closeIcon={'cancel'}
+            displayValue={'key'}
+            options={options}
+            onSelect={(selectedValues) => this.setState({selectedValues})}
+            onRemove={(selectedValues) => this.setState({selectedValues})}
+            placeholder={'Country / State'}
+            selectedValues={this.state.selectedValues}
+          />
+        </div>
       </div>
     );
   }

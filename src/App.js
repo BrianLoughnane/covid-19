@@ -18,6 +18,7 @@ function makeName(row) {
   }
   return '???';
 }
+
 export default class App extends React.Component {
   constructor() {
     super();

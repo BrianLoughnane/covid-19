@@ -27,14 +27,17 @@ export default class App extends React.Component {
       data: [],
       keys: [],
       locations: [
-        'Canada - British Columbia'
+        'Italy',
+        'Spain',
+        'France - France',
+        'US - New York',
       ],
-      period: 0,
+      period: 30,
     }
     this.onSubmit = this.onSubmit.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.getData(this.state);
   }
 
@@ -46,9 +49,11 @@ export default class App extends React.Component {
 
   parseRawData(rawData, configuration, top10) {
     const rows = Papa.parse(rawData).data
-      .filter(row => row[row.length-1] || row[row.length-2]);
-
     const header = rows[0];
+    const dataRows = rows.slice(1)
+      .sort((a,b) => Number(a[header.length-1]) - Number(b[header.length-1]))
+      .slice(-30)
+
     const tsOffset = 4;
     let offset = tsOffset;
     if (configuration.period !== 0) {
@@ -62,7 +67,7 @@ export default class App extends React.Component {
       const datum = {
         timestamp,
       };
-      rows.forEach(row => {
+      dataRows.forEach(row => {
         const name = makeName(row);
         keys.add(name);
         if (locations.has(name)) {
